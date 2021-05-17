@@ -1,3 +1,9 @@
+/**
+ * GreenSurvivors Serverstatus Widget
+ * v1.1
+ * Copyright GreenSurvivors.de 2021
+ */
+
 const debug = false
 
 const widget = new ListWidget()
@@ -5,7 +11,7 @@ const widget = new ListWidget()
 // Lade externe Daten
 const serverStatus = await fetchServerStatus()
 var playerHeads = null
-if (config.widgetFamily == "large" || debug) {      
+if ((config.widgetFamily == "large" || debug)) {      
   playerHeads = await loadPlayerHeads(serverStatus.players)
 }
 const backgroundImage = await loadImageWithCache("https://greensurvivors.de/wp-content/uploads/2017/12/Wallpaper.jpg", "grsv_bg", 7)
@@ -13,6 +19,10 @@ const backgroundImage = await loadImageWithCache("https://greensurvivors.de/wp-c
 createWidget()
 if (!config.runsInWidget && debug) {
   await widget.presentLarge()
+}
+if (!config.runsInWidget && !debug) {
+  const callback = new CallbackURL("https:greensurvivors.de")
+  callback.open()
 }
 Script.setWidget(widget)
 Script.complete()
@@ -90,6 +100,11 @@ async function fetchServerStatus() {
   const request = new Request(url)
   let res = await request.loadString()
   let obj = JSON.parse(res)
+  
+  if (obj.players == false) {
+    obj.players = []
+  }
+  
   return obj
 }
 

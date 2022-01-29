@@ -1,3 +1,7 @@
+// Variables used by Scriptable.
+// These must be at the very top of the file. Do not edit.
+// icon-color: deep-green; icon-glyph: leaf;
+
 /**
  * GreenSurvivors Serverstatus Widget
  * v1.1
@@ -11,7 +15,7 @@ const widget = new ListWidget()
 // Lade externe Daten
 const serverStatus = await fetchServerStatus()
 var playerHeads = null
-if ((config.widgetFamily == "large" || debug)) {      
+if ((config.widgetFamily == "large" || debug)) {
   playerHeads = await loadPlayerHeads(serverStatus.players)
 }
 const backgroundImage = await loadImageWithCache("https://greensurvivors.de/wp-content/uploads/2017/12/Wallpaper.jpg", "grsv_bg", 7)
@@ -139,17 +143,27 @@ async function createPlayerList(view) {
     playerListRight.layoutVertically()
     playerListRight.addStack().addSpacer()
 
-	  let lic = 1 // List Item Count
+	  let lic = 0 // List Item Count
     for ([player, icon] of playerHeads) {
+      if (lic >= 18) {
+        let more = view.addText("... und " + (playerHeads.size - lic) + " weitere Spieler")
+        more.font = Font.regularSystemFont(12)
+        more.textColor = Color.white()
+        break
+      }
       let playerEntry = null
-      if (lic % 2 == 0) {
+      if ((lic + 1) % 2 == 0) {
         playerEntry = playerListRight.addStack()
       } else {
         playerEntry = playerListLeft.addStack()
       }
       playerEntry.setPadding(4, 0, 4, 0)
-      let head = playerEntry.addImage(icon)
-      head.imageSize = new Size(16, 16)
+      if (icon != null) {
+      	let head = playerEntry.addImage(icon)
+        head.imageSize = new Size(16, 16)
+      } else {
+        playerEntry.addSpacer(16)
+      }
       playerEntry.addSpacer(4)
       let playerName = playerEntry.addText(player)
       playerName.font = Font.regularSystemFont(12)
@@ -172,7 +186,7 @@ async function getPlayerhead(player, size) {
       let iconImage = loadImageWithCache(imageUrl, player, 7)
       return iconImage
   } catch (e) {
-    console.error(e.message)
+    console.error(e.message + " Player: " + player)
   }
 }
 
@@ -206,7 +220,7 @@ async function loadImageWithCache(url, name, cacheTime) {
       return iconImage
     }
   } catch (e) {
-    console.error(e.message)
+    console.error(e.message + " Name: " + name)
   }
 }
 
